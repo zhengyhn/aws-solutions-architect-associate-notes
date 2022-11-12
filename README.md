@@ -1,6 +1,7 @@
 # aws-solutions-architect-associate-notes
 My notes when preparing AWS solutions architect associate cert
 
+# Notes
 ## S3 storage class
 - S3 Standard
     - Designed for durability of 99.999999999% of objects across multiple Availability Zones
@@ -182,3 +183,141 @@ VPC
 - The term pilot light is often used to describe a disaster recovery scenario in which a minimal version of an environment is always running in the cloud.
 - You can use Amazon Data Lifecycle Manager (Amazon DLM) to automate the creation, retention, and deletion of snapshots taken to back up your Amazon EBS volumes.
 - You can bring part or all of your public IPv4 address range from your on-premises network to your AWS account. You continue to own the address range, but AWS advertises it on the Internet. After you bring the address range to AWS, it appears in your account as an address pool
+
+# Mock exam notes
+- Subnets have a DHCP option set. DHCP stands for dynamic host control protocol, this is how devices automatically receive their IP addresses. Each VPC comes with one DHCP option set, and can only have one applied at a time. It can be changed, but you must create a new one to do so, you can not edit your DHCP option set.
+- What does ::/0 mean? it is actually for all IPv6 addresses
+- A Bastion Host is an Ec2 instance in a public subnet inside a VPC. And they are a great security feature that can be used to allow incoming management connection and then once connect you can jump/connect into private resources in subnets. It is an inbound management point and you can really tighten up what access is allowed with your route tables
+- A gateway endpoint is used for AWS public services, So remember that some AWS services are public services and they sit inside the AWS public zone, and sometimes we want to connect to these public services like s3 or DynamoDB from a private instance or subnet that does not have access to the internet and does not have a NAT Gateway set up
+- A NAT gateway must be provisioned into a public subnet (so that it has a route to the internet), and it must part of the private subnet's route table (so that the private instances have a route to the NAT gateway).
+- AWS Backup is a fully managed backup service that makes it easy to centralize and automate the back up of data across AWS services in the cloud as well as on premises using the AWS Storage Gateway.
+- One Snowball Edged device can hold up to 100TB. You would need 200 devices. For 10PB or more, AWS recommends Snowmobile as a more efficient and cost effective solution. One Snowmobile can hold up to 100PB, so that is all you would need.
+- Virtual Tape Library gateway allows us to present a virtual tape library over ISCSI to any compatible backup software, this has a high admin overhead and is also costly, and should be stored off site, Allows us to present a virtual tape drive and it is stored in S3 Can be used to migrate your data into AWS over a period of time
+-  Lambda functions are not persistent and you get a new runtime environment each time you invoke the function. You will need to pull data into your runtime environment. Any outputs from your function you can store in DynamoDB or s3. If we need longer, Step Functions is a great choice.
+- How can you give your Lambda function more CPU capacity so it completes faster? Allocating more RAM to the function also allocates more CPU.
+- Security groups are stateful: This means any changes applied to an incoming rule will be automatically applied to the outgoing rule. e.g. If you allow an incoming port 80, the outgoing port 80 will be automatically opened.
+- Network ACLs are stateless: This means any changes applied to an incoming rule will not be applied to the outgoing rule. e.g. If you allow an incoming port 80, you would also need to apply the rule for outgoing traffic.
+- Both AWS Managed and Customer Managed keys support key rotation. Rotation is when the physical data used to completed the cryptographic operation is changed. With AWS managed keys, rotation occurs every three years and cannot be disabled.
+- We have two types of Customer Master Keys (CMKs): AWS managed CMKs and customer managed CMKs. Customer managed keys are created by customers and are more configurable than AWS managed keys. However, those keys cannot be shared across regions.
+-  Instance role key rotation is handled by IAM/STS
+- When a storage device has reached the end of its useful life, AWS procedures do include a decommissioning process that is designed to prevent customer data from being exposed to unauthorized individuals. AWS uses the techniques detailed in DoD 5220.22-M (“National Industrial Security Program Operating Manual “) or NIST 800-88 (“Guidelines for Media Sanitization”) to destroy data as part of the decommissioning process
+- Security groups cannot be attached to DynamoDB.
+- Each subnet in your VPC must be associated with a network ACL. If you don't explicitly associate a subnet with a network ACL, the subnet is automatically associated with the default network ACL
+- A cluster placement group is a logical grouping of instances within a single Availability Zone. A cluster placement group can span peered VPCs in the same Region. Instances in the same cluster placement group enjoy a higher per-flow throughput limit for TCP/IP traffic and are placed in the same high-bisection bandwidth segment of the network.
+- Amazon DynamoDB Accelerator (DAX) is a fully managed, highly available, in-memory cache that can reduce Amazon DynamoDB response times from milliseconds to microseconds, even at millions of requests per second. While DynamoDB offers consistent single-digit millisecond latency, DynamoDB with DAX takes performance to the next level with response times in microseconds for millions of requests per second for read-heavy workloads. With DAX, your applications remain fast and responsive, even when a popular event or news story drives unprecedented request volumes your way. No tuning required.
+- Amazon DynamoDB auto scaling uses the AWS Application Auto Scaling service to dynamically adjust provisioned throughput capacity on your behalf, in response to actual traffic patterns. This enables a table or a global secondary index to increase its provisioned read and write capacity to handle sudden increases in traffic, without throttling. When the workload decreases, Application Auto Scaling decreases the throughput so that you don't pay for unused provisioned capacity. Note that if you use the AWS Management Console to create a table or a global secondary index, DynamoDB auto scaling is enabled by default. You can modify your auto scaling settings at any time.
+- Your AWS account has default quotas, formerly referred to as limits, for each AWS service. Unless otherwise noted, each quota is Region-specific. You can request increases for some quotas, and other quotas cannot be increased. Service Quotas is an AWS service that helps you manage your quotas for over 100 AWS services from one location. Along with looking up the quota values, you can also request a quota increase from the Service Quotas console.
+- Warm standby maintains a scaled-down but fully functional version of your workload always running in the DR Region. Business-critical systems are fully duplicated and are always on, but with a scaled down fleet. When the time comes for recovery, the system is scaled up quickly to handle the production load
+- Best practices for configuring network interfaces 
+  - You can attach a network interface to an instance when it's running (hot attach), when it's stopped (warm attach), or when the instance is being launched (cold attach).
+  - You can detach secondary network interfaces when the instance is running or stopped. However, you can't detach the primary network interface.
+  - You can move a network interface from one instance to another, if the instances are in the same Availability Zone and VPC but in different subnets.
+  - When launching an instance using the CLI, API, or an SDK, you can specify the primary network interface and additional network interfaces.
+  - Launching an Amazon Linux or Windows Server instance with multiple network interfaces automatically configures interfaces, private IPv4 addresses, and route tables on the operating system of the instance.
+  - A warm or hot attach of an additional network interface may require you to manually bring up the second interface, configure the private IPv4 address, and modify the route table accordingly.
+  - Instances running Amazon Linux or Windows Server automatically recognize the warm or hot attach and configure themselves.
+  - Attaching another network interface to an instance (for example, a NIC teaming configuration) cannot be used as a method to increase or double the network bandwidth to or from the dual-homed instance. If you attach two or more network interfaces from the same subnet to an instance, you may encounter networking issues such as asymmetric routing. If possible, use a secondary private IPv4 address on the primary network interface instead.
+  - For more information, see Assigning a secondary private IPv4 address. https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html
+- Memory utilization is not available as an out of the box metric in CloudWatch. You can, however, collect memory metrics when you configure a custom metric for CloudWatch. Types of custom metrics that you can set up include:
+  - Memory utilization
+  - Disk swap utilization
+  - Disk space utilization
+  - Page file utilization
+  - Log collection
+ 
+- Q: What happens during Multi-AZ failover and how long does it take? Failover is automatically handled by Amazon RDS so that you can resume database operations as quickly as possible without administrative intervention.
+  - When failing over, Amazon RDS simply flips the canonical name record (CNAME) for your DB instance to point at the standby, which is in turn promoted to become the new primary. We encourage you to follow best practices and implement database connection retry at the application layer.
+  - Failovers, as defined by the interval between the detection of the failure on the primary and the resumption of transactions on the standby, typically complete within one to two minutes. Failover time can also be affected by whether large uncommitted transactions must be recovered; the use of adequately large instance types is recommended with Multi-AZ for best results. AWS also recommends the use of Provisioned IOPS with Multi-AZ instances for fast, predictable, and consistent throughput performance.
+- Cloud watch can monitor Auto Scaling Groups and optimize resource utilization
+- The default timeframe for scheduling an AWS KMS key deletion is 30 days. The timeframe selection for scheduling an AWS KMS key deletion is 7-30 days.
+- There are 8 permitted services on which you may conduct vulnerability and penetration testing without prior approval from AWS
+  - Amazon EC2 instances, NAT Gateways, and Elastic Load Balancers
+  - Amazon RDS
+  - Amazon CloudFront
+  - Amazon Aurora
+  - Amazon API Gateways
+  - AWS Lambda and Lambda Edge functions
+  - Amazon Lightsail resources
+  - Amazon Elastic Beanstalk environments
+ 
+- The root user (root account) is capable of enabling MFA Delete. Versioning must be enabled to enable MFA Delete on an S3 Bucket.
+- Personnel Security is an AWS responsibility in the Shared Responsibility Model. AWS must maintain the security of the cloud by protecting facilities using security personnel.
+- Low risk of credential exposure, no need for creating IAM Users, and no need for rotating STS keys are all benefits of using STS
+- Only Business or Enterprise customers with AWS Trusted Advisor have programmatic access. Only Business or Enterprise customers with AWS Trusted Advisor has access to automated CloudWatch alerting
+- AWS Trusted Advisors provides recommendations that help you follow AWS best practices. Trusted Advisor evaluates your account by using checks. These checks identify ways to optimize your AWS infrastructure, improve security and performance, reduce costs, and monitor service quotas. You can then follow the check recommendations to optimize your services and resources.
+- In regards to best practices, Any IAM User with AWS Console access should be required to use MFA. The requirement of MFA will decrease risks to the AWS account
+- An IAM user with the AWS managed IAM Policy "PowerUserAccess" is capable of most administrative tasks in an AWS account but is limited. The limitations consist of no billing access and the inability to manage IAM users and groups.
+- FIPS 140-2 Level 3 is the level of compliance is CloudHSM (Cloud Hardware Security Module)
+- Amazon Inspector analyzes AWS Resource behavior, test network security, assesses deviations from best practices, and provides recommendations on how to resolve based on Inspector reports.
+- S3 supports two types of replication: cross-region replication (CRR) and same-region replication (SRR). It does not support cross-account replication.
+- When you suspend versioning, S3 retains all current and existing past versions. However, all new objects will overwrite the existing current version. No new versions will be created.
+- S3 Accelerated Transfer first utilizes the public internet and then uses the closest best performance edge locations to transfer through fewer networks. Once it hits the edge locations, it use the AWS global network, which is much faster with lower consistent latency.
+- To use an S3 bucket for Route 53 DNS failover, the bucket name must match the domain name.
+- AAAA map to an IPV6 address
+- Geo location routing is focused delivering queries to match the location of your customers, the physical geography, so you can create records with the same name and type in a hosted zone but set a location field, so that location can be default, set to a country, or continent
+- A use-case of geo location routing policy is data protection/sovereignty issues for example Europe's general data protection regulation - and Geo-routing would be a great reason to use geo-location (as opposed to latency) to ensure the right EC2 instances, and databases, interact with European customers
+- Amazon Route 53 alias records provide a Route 53–specific extension to DNS functionality. Alias records let you route traffic to selected AWS resources, such as CloudFront distributions and Amazon S3 buckets. They also let you route traffic from one record in a hosted zone to another record
+- All routing policies can have an optional health check, except simple routing policies
+- You can not use capital letters in bucket names. S3 Bucket names must be unique in all regions. You can not reuse an S3 Bucket name, nor can you use a bucket name that exists anywhere in any AWS account
+- Inline policies are policies that you create and manage and embed directly into a single user, group, or role. Inline policies are useful if you want to maintain a strict one-to-one relationship between a policy and the principal entity that it's applied to.
+- If versioning is disabled and the object is deleted, it's gone forever.
+- 5 terabytes is the largest individual object you can store in S3
+- EC2 instance metadata can be used to configure or manage a running instance, and can also be used to access user data that was specified when the instance was launched
+- AMIs are region specific
+- There are a number of prerequisites that must be meet to allow for hibernation, including a specific set of supported EC2 instance types. Reference Documentation: Hibernate Your On-Demand or Reserved Linux Instance
+- EBS volumes are not encrypted by default.
+- DynamoDB supports backup and restore
+- IBM Db2 is not a supported database engine
+- AWS handles NAT Gateway scaling for you
+- What instance will the ELB load balancer send traffic to if no hosts are healthy?  It will send traffic to all the instances, hoping one is online.
+- CloudWatch's default metric interval is 5 minutes
+- Baking your code into your AMIs will help reduce provisioning time
+- Yes! SQS can only handle messages up to 256KB of text in any format
+- Redshift focuses on storing data and not on streaming it
+- At this time, Redshift does not support multi-AZ deployments.
+- Kinesis Data Analytics allows you to transform data using SQL
+- You need to wait at least 7 days before you can schedule a KMS key to be deleted
+- GuardDuty focuses on monitoring your networking traffic
+- What part of a CloudFormation template allows you to pass values into the template? Parameters allow us to pass data into the template before it's created.
+- Global Accelerator can help deal with IP caching issues by providing static IPs.
+- Trusted Advisor is a free tool that audits for AWS best practices
+- Organizations can consolidate your logs into a single S3 bucket
+- You need to place the account ID in the role trust policy to allow the other account to assume it
+- Config is able to track AWS architecture and check for best practice violations
+- Database Migration Service can be used to migrate a databse from on-prem to RDS
+- AWS Migration Hub can organize and track your move to the cloud.
+- NACL rules are evaluated by rule number from lowest to highest and executed immediately when a matching rule is found
+- Using an Application Load Balancer instead of a Classic Load Balancer has the following benefits:
+ 
+  - Support for path-based routing. You can configure rules for your listener that forward requests based on the URL in the request. This enables you to structure your application as smaller services, and route requests to the correct service based on the content of the URL.
+  - Support for host-based routing. You can configure rules for your listener that forward requests based on the host field in the HTTP header. This enables you to route requests to multiple domains using a single load balancer.
+  - Support for routing based on fields in the request, such as standard and custom HTTP headers and methods, query parameters, and source IP addresses.
+  - Support for routing requests to multiple applications on a single EC2 instance. You can register each instance or IP address with the same target group using multiple ports.
+  - Support for redirecting requests from one URL to another.
+  - Support for returning a custom HTTP response.
+  - Support for registering targets by IP address, including targets outside the VPC for the load balancer.
+  - Support for registering Lambda functions as targets.
+  - Support for the load balancer to authenticate users of your applications through their corporate or social identities before routing requests.
+  - Support for containerized applications. Amazon Elastic Container Service (Amazon ECS) can select an unused port when scheduling a task and register the task with a target group using this port. This enables you to make efficient use of your clusters.
+  - Support for monitoring the health of each service independently, as health checks are defined at the target group level and many CloudWatch metrics are reported at the target group level. Attaching a target group to an Auto Scaling Group enables you to scale each service dynamically based on demand.
+  - Access logs contain additional information and are stored in compressed format.
+  - Improved load balancer performance.
+- You can back up the data on your Amazon EBS volumes to Amazon S3 by taking point-in-time snapshots. Snapshots are incremental backups, which means that only the blocks on the device that have changed after your most recent snapshot are saved. This minimizes the time required to create the snapshot and saves on storage costs by not duplicating data. When you delete a snapshot, only the data unique to that snapshot is removed. Each snapshot contains all of the information that is needed to restore your data (from the moment when the snapshot was taken) to a new EBS volume.
+-  In a Multi-AZ deployment, Amazon RDS automatically provisions and maintains a synchronous standby replica in a different Availability Zone
+- AWS recommends that you create Auto Scaling groups from launch templates to ensure that you're accessing the latest features and improvements. If you plan to continue to use launch configurations with Amazon EC2 Auto Scaling, be aware that not all Auto Scaling group features are available. When you edit an Auto Scaling group that has an existing launch configuration, you have the option of replacing the launch configuration with a launch template. This lets you use launch templates with any Auto Scaling groups that you currently use. In doing so, you can take advantage of the versioning and other features of launch templates
+- If a subnet is associated with a route table that has a route to an internet gateway, it's known as a public subnet. If a subnet is associated with a route table that does not have a route to an internet gateway, it's known as a private subnet.
+- Kinesis data streams – Kinesis data streams is highly customizable and best suited for developers building custom applications or streaming data for specialized needs. However, requires manual scaling and provisioning. Data typically is made available in a stream for 24 hours, but for an additional cost, users can gain data availability for up to seven days.
+ 
+- Kinesis Data Firehose – Firehose handles loading data streams directly into AWS products for processing. Scaling is handled automatically, up to gigabytes per second, and allows for batching, encrypting, and compressing. Firehose also allows for streaming to S3, Elasticsearch Service, or Redshift, where data can be copied for processing through additional services.
+- Backup and restore (RPO in hours, RTO in 24 hours or less): Back up your data and applications using point-in-time backups into the DR Region. Restore this data when necessary to recover from a disaster.
+ 
+- Pilot light (RPO in minutes, RTO in hours): Replicate your data from one region to another and provision a copy of your core workload infrastructure. Resources required to support data replication and backup such as databases and object storage are always on. Other elements such as application servers are loaded with application code and configurations, but are switched off and are only used during testing or when Disaster Recovery failover is invoked.
+ 
+- Warm standby (RPO in seconds, RTO in minutes): Maintain a scaled-down but fully functional version of your workload always running in the DR Region. Business-critical systems are fully duplicated and are always on, but with a scaled down fleet. When the time comes for recovery, the system is scaled up quickly to handle the production load. The more scaled-up the Warm Standby is, the lower RTO and control plane reliance will be. When scaled up to full scale this is known as a Hot Standby.
+ 
+- Multi-region (multi-site) active-active (RPO near zero, RTO potentially zero): Your workload is deployed to, and actively serving traffic from, multiple AWS Regions. This strategy requires you to synchronize data across Regions. Possible conflicts caused by writes to the same record in two different regional replicas must be avoided or handled. Data replication is useful for data synchronization and will protect you against some types of disaster, but it will not protect you against data corruption or destruction unless your solution also includes options for point-in-time recovery. Use services like Amazon Route 53 or AWS Global Accelerator to route your user traffic to where your workload is healthy. For more details on AWS services you can use for active-active architectures see the AWS Regions section of Use Fault Isolation to Protect Your Workload.
+- Distributed Denial of Service (DDoS) attacks risk shutting out legitimate traffic and lowering availability for your users. 
+- AWS Shield provides automatic protection against these attacks at no extra cost for AWS service endpoints on your workload.
+ 
+- your VPC includes a default security group. You can't delete this group, however, you can change the group's rules. The procedure is the same as modifying any other security group. For more information, see Adding, removing, and updating rules.
+- AWS Personal Health Dashboard provides alerts and remediation guidance when AWS is experiencing events that may impact you. While the Service Health Dashboard displays the general status of AWS services, Personal Health Dashboard gives you a personalized view of the performance and availability of the AWS services underlying your AWS resources. The dashboard displays relevant and timely information to help you manage events in progress, and provides proactive notification to help you plan for scheduled activities. With Personal Health Dashboard, alerts are triggered by changes in the health of AWS resources, giving you event visibility and guidance to help quickly diagnose and resolve issues
